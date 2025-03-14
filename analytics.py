@@ -1,11 +1,75 @@
-import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Use Agg backend to avoid Tkinter issues
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 import folium
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 import time
 from neo4j_handler import Neo4jHandler
+from collections import Counter
+import os
+
+__all__ = ['Analytics', 'generate_visualizations']
+
+def generate_visualizations(data_storage):
+    """Generate all visualizations for the data"""
+    # Create static directory if it doesn't exist
+    os.makedirs('static', exist_ok=True)
+    
+    # Get statistics
+    stats = data_storage.get_statistics()
+    
+    # Gender Distribution
+    plt.figure(figsize=(8, 6))
+    gender_data = stats['gender_distribution']
+    if gender_data:
+        plt.bar(gender_data.keys(), gender_data.values())
+        plt.title('Gender Distribution')
+        plt.xlabel('Gender')
+        plt.ylabel('Count')
+        plt.savefig('static/gender_distribution.png', bbox_inches='tight')
+    plt.close('all')
+    
+    # Age Group Distribution
+    plt.figure(figsize=(8, 6))
+    age_data = stats['age_group_distribution']
+    if age_data:
+        plt.bar(age_data.keys(), age_data.values())
+        plt.title('Age Group Distribution')
+        plt.xlabel('Age Group')
+        plt.ylabel('Count')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig('static/age_group_distribution.png', bbox_inches='tight')
+    plt.close('all')
+    
+    # Height Distribution
+    plt.figure(figsize=(8, 6))
+    height_data = stats['height_distribution']
+    if height_data:
+        heights = list(map(float, height_data.keys()))
+        counts = list(height_data.values())
+        plt.hist(heights, weights=counts, bins=10)
+        plt.title('Height Distribution')
+        plt.xlabel('Height (cm)')
+        plt.ylabel('Count')
+        plt.savefig('static/height_distribution.png', bbox_inches='tight')
+    plt.close('all')
+    
+    # Postal Code Distribution (Simple Bar Chart)
+    plt.figure(figsize=(10, 6))
+    postal_data = stats['postal_code_distribution']
+    if postal_data:
+        plt.bar(postal_data.keys(), postal_data.values())
+        plt.title('Postal Code Distribution')
+        plt.xlabel('Postal Code')
+        plt.ylabel('Count')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig('static/postal_code_distribution.png', bbox_inches='tight')
+    plt.close('all')
 
 class Analytics:
     def __init__(self, data_storage):
@@ -107,21 +171,18 @@ class Analytics:
 
     def generate_all_visualizations(self):
         """Generate all visualization plots"""
-        self.generate_gender_distribution()
-        self.generate_age_group_distribution()
-        self.generate_height_distribution()
-        self.generate_postal_code_distribution()
+        generate_visualizations(self.data_storage)
 
     def get_statistics_report(self):
         """Generate a comprehensive statistics report"""
         stats = self.data_storage.get_statistics()
         return {
-            'gender_stats': pd.DataFrame(stats['gender_distribution']),
-            'age_group_stats': pd.DataFrame(stats['age_group_distribution']),
-            'height_stats': pd.DataFrame(stats['height_distribution']),
-            'postal_code_stats': pd.DataFrame(stats['postal_code_distribution'])
+            'gender_stats': pd.DataFrame(stats['gender_distribution'].items(), columns=['gender', 'count']),
+            'age_group_stats': pd.DataFrame(stats['age_group_distribution'].items(), columns=['age_group', 'count']),
+            'height_stats': pd.DataFrame(stats['height_distribution'].items(), columns=['height', 'count']),
+            'postal_code_stats': pd.DataFrame(stats['postal_code_distribution'].items(), columns=['postal_code', 'count'])
         }
 
     def close(self):
         """Close the Neo4j connection"""
-        self.data_storage.close() 
+        self.data_storage.close()

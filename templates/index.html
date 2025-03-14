@@ -74,7 +74,29 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">BC ID Card OCR</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select ID Card Images</label>
+                        <input type="file" class="form-control" id="file" name="files[]" accept="image/*" multiple required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Process Images</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 mb-3">
+                <a href="/export" class="btn btn-success" id="exportBtn">
+                    <i class="fas fa-file-export"></i> Export to CSV
+                </a>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
@@ -153,6 +175,52 @@
                 </div>
             </div>
         </div>
+
+        {% if results %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Processing Results</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Gender</th>
+                                <th>Age</th>
+                                <th>Height</th>
+                                <th>Postal Code</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.filename }}</td>
+                                <td>{{ result.gender if not result.error else '-' }}</td>
+                                <td>{{ result.age if not result.error else '-' }}</td>
+                                <td>{{ result.height if not result.error else '-' }}</td>
+                                <td>{{ result.postal_code if not result.error else '-' }}</td>
+                                <td>
+                                    {% if result.error %}
+                                    <span class="text-danger">
+                                        <i class="fas fa-exclamation-circle"></i> {{ result.error }}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle"></i> Success
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -219,8 +287,7 @@
                             <p><i class="fas fa-map-marker-alt me-2"></i>Postal Code: ${data.data.postal_code}</p>
                         </div>
                     `;
-                    // Refresh statistics
-                    location.reload();
+                    refreshVisualizations();
                 } else {
                     result.innerHTML = `
                         <div class="alert alert-danger">
@@ -240,6 +307,25 @@
                 loading.style.display = 'none';
             });
         }
+
+        function refreshVisualizations() {
+            // Refresh all visualization images with a timestamp to prevent caching
+            const timestamp = new Date().getTime();
+            document.querySelectorAll('.stats-content img').forEach(img => {
+                const src = img.src.split('?')[0];
+                img.src = `${src}?t=${timestamp}`;
+            });
+            
+            // Refresh the map iframe
+            const mapFrame = document.querySelector('iframe');
+            mapFrame.src = `/static/postal_code_distribution.html?t=${timestamp}`;
+        }
+
+        // Add click handler for export button
+        document.getElementById('exportBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = '/export';
+        });
     </script>
 </body>
 </html> 

@@ -1,53 +1,98 @@
-# BC ID Card OCR Application
+# OCR BC ID Classification System
 
-This application extracts text from BC ID cards using OCR technology and stores the data in a Neo4j graph database. It provides analytics and visualization of the extracted information.
+A web-based application for extracting and analyzing information from British Columbia ID cards using Optical Character Recognition (OCR). The system provides visual analytics for demographic data including gender distribution, age groups, height distribution, and geographical distribution of postal codes.
 
 ## Features
 
-- OCR text extraction from BC ID cards
-- Data storage in Neo4j graph database
-- Analytics on gender distribution
-- Age group analysis (3 groups)
-- Height distribution analysis
-- Postal code grouping and analysis
-- Graph visualization reports
+- 📷 Image Upload & OCR Processing
+- 📊 Real-time Data Visualization
+- 🗺️ Interactive Postal Code Map
+- 📈 Statistical Analysis
+- 💾 Local Data Storage
+- 🌐 Web-based Interface
 
-## Setup Instructions
+## Installation
 
-1. Install Python dependencies:
+1. Clone the repository:
+```bash
+git clone https://github.com/parisa-nsh/OCR_BC-ID-classification.git
+cd OCR_BC-ID-classification
+```
+
+2. Create and activate a virtual environment:
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Install Tesseract OCR:
-- Windows: Download and install from https://github.com/UB-Mannheim/tesseract/wiki
-- Linux: `sudo apt-get install tesseract-ocr`
-- Mac: `brew install tesseract`
-
-3. Set up Neo4j:
-- Download and install Neo4j Desktop
-- Create a new database
-- Set up credentials in .env file
-
-4. Configure environment variables:
-Create a .env file with:
-```
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=your_password
+4. Create required directories:
+```bash
+mkdir -m static uploads data
 ```
 
-5. Run the application:
+## Usage
+
+1. Start the Flask application:
 ```bash
 python app.py
 ```
 
+2. Open your web browser and navigate to:
+```
+http://localhost:5000
+```
+
+3. Upload an ID card image using the web interface:
+   - Drag and drop an image or click to select
+   - Wait for processing
+   - View extracted information and updated visualizations
+
 ## Project Structure
 
-- `app.py`: Main Flask application
-- `ocr_processor.py`: OCR processing module
-- `neo4j_handler.py`: Neo4j database operations
-- `analytics.py`: Data analysis and visualization
-- `templates/`: HTML templates
-- `static/`: Static files (CSS, JS, images)
-- `uploads/`: Directory for uploaded ID card images 
+```
+OCR_BC-ID-classification/
+├── app.py              # Main Flask application
+├── analytics.py        # Data visualization and analysis
+├── data_storage.py     # Data management
+├── ocr_processor.py    # OCR processing
+├── templates/          # HTML templates
+│   └── index.html     # Main web interface
+├── static/            # Static files and generated visualizations
+├── uploads/           # Temporary storage for uploaded images
+└── data/             # Persistent data storage
+```
+
+## Dependencies
+
+- Python 3.8+
+- Flask
+- Tesseract OCR
+- OpenCV
+- Matplotlib
+- Pandas
+- Folium
+- Geopy
+
+## Development
+
+To contribute to this project:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
